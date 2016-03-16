@@ -88,7 +88,62 @@ for x in range(5):
         te_ += "<li><a href='https://papers.nips.cc/paper/" + ds6.index[i] + "'>" + ds6.index[i] + "</a> [" + str(ds6.un[i]) + "]</>[" + str(ds6.un[i]) + "]</li><br>"
     HTML(te_+"</ul>")
     
-        
+## identification of all the NN Math Formulas from the PDF files. 
+
+ds_m = pd.read_sql("select PaperText from Papers where PdfName = '5816-evaluating-the-statistical-significance-of-biclusters.pdf'", c)
+print(ds_m.PaperText[0][ds_m.PaperText[0].find("Without loss of generality,"):ds_m.PaperText[0].find("For our theoretical results,")])
+
+## import pip
+m_ = sorted([i.key for i in pip.get_installed_distributions()])
+print(m_)
+for mo_ in m_:
+    if str(mo_.lower()).find("pdf") > 0:
+        print(mo_)
+
+## testing some nodes
+import matplotlib.pyplot as plt
+import networkx as n
+from operator import itemgetter
+import itertools
+z={}
+t_ = "model"
+for i in range(len(ds.PaperText)):
+    s = ds.PaperText[i].replace("\n"," ")
+    s = s.lower()
+    s = re.sub("[^a-z]", " ", s)
+    a = s.replace("  ", " ").split(" ")
+    a = [word for word in a if word not in stop_ and len(word) > 3]
+    for b_ in range(len(a)):
+        if str(a[b_].lower()).find(t_) > 0 or str(a[b_].lower()) == t_:
+            if b_-3>=0:
+                l1=b_ - 3
+            else: 
+                l1=0 
+            if b_ +1 < len(a):
+                h1 = b_ + 1
+            else:
+                h1 = len(a) - 1
+            for j in range(l1, h1):
+                if (a[j]+"|"+a[j+1]) not in z:
+                    z[a[j]+"|" + a[j+1] = 1
+                else:
+                    z[a[j]+"|"+a[j+1] += 1
+a = [ ] 
+for z_ in z: 
+    a.append([z_.split("|")[0], z_.split("|")[1], z[z_]])
+a = sorted(a, key=itemgetter(1))
+
+# networkx Graph
+g = n.Graph()
+g.clear()
+for i in range(len(a)):
+    g.add_edge(a[i][0], a[i][1])
+pos = n.spring_layout(g)
+plt.figure(figsize=(12, 12))
+n.draw(g)
+n.draw_networkx_labels(g, pos, font_size=9, font_family='sans-serif')
+plt.savefig('models.png')
+
     
     
     
